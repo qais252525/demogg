@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genie AI</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#4F46E5', /* Premium indigo */
+              hover: '#4338CA',
+              light: '#EEF2FF',
+              dark: '#3730A3'
+            },
+            accent: {
+              DEFAULT: '#F59E0B', /* Warm amber */
+              hover: '#D97706',
+              light: '#FEF3C7'
+            },
+            dark: {
+              DEFAULT: '#111827',
+              light: '#1F2937'
+            },
+            light: {
+              DEFAULT: '#F9FAFB',
+              dark: '#F3F4F6'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+            display: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          },
+          boxShadow: {
+            'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
+            'glow': '0 0 15px rgba(79, 70, 229, 0.5)'
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'bounce-slow': 'bounce 2s infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Custom arrow for links */
+    .arrow-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      color: #4F46E5;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .arrow-link:hover {
+      text-decoration: underline;
+    }
+    
+    .arrow-link svg {
+      margin-left: 4px;
+      transition: transform 0.2s ease;
+    }
+    
+    .arrow-link:hover svg {
+      transform: translateX(3px);
+    }
+
+    .feature-section {
+      min-height: 70vh;
+      padding: 60px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .video-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-container.active {
+      opacity: 1;
+    }
+
+    .videos-column {
+      position: sticky;
+      top: 50px;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .videos-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-height: 500px;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes marquee-reverse {
+      0% {
+        transform: translateX(-50%);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .animate-marquee {
+      animation: marquee 47s linear infinite;
+    }
+
+    .animate-marquee-reverse {
+      animation: marquee-reverse 47s linear infinite;
+    }
+
+    /* Important: This ensures the animation actually pauses */
+    .paused {
+      animation-play-state: paused !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 1.2s ease-out;
+    }
+    
+    @keyframes bounceSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+      animation: bounceSlow 2.5s infinite ease-in-out;
+    }
+    
+    @keyframes progress {
+      from { width: 0; }
+      to { width: 65%; }
+    }
+    .animate-progress {
+      animation: progress 1.5s ease-in-out;
+    }
+
+    /* Glass effect */
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(90deg, #4F46E5, #F59E0B);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline;
+    }
+
+    /* Button hover effect */
+    .btn-hover-effect {
+      transition: all 0.3s ease;
+    }
+    .btn-hover-effect:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Toggle switch styling */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #4F46E5;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #4F46E5;
+    }
+
+    /* Footer styling */
+    .bg-footer-dark {
+      background-color: #111827;
+    }
+    .text-footer-text {
+      color: #F9FAFB;
+    }
+    .text-footer-link {
+      color: #D1D5DB;
+    }
+    .text-footer-link-hover {
+      color: #4F46E5;
+    }
+
+    @media (max-width: 768px) {
+      .feature-section {
+        min-height: auto;
+        padding: 40px 0;
+      }
+      
+      .videos-column {
+        position: static;
+        height: auto;
+        margin-bottom: 30px;
+      }
+      
+      .videos-wrapper {
+        height: 300px;
+      }
+      
+      .video-container {
+        position: relative;
+        height: 300px;
+      }
+      
+      .video-container:not(.active) {
+        display: none;
+      }
+    }
+  </style>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="font-sans text-gray-900 bg-light">
+    
+    <!-- Header -->
+       
+    <header class="border- border-gray-200 sticky top-0 bg-white z-50 py-4">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-14">
+          <nav class="flex h-18 ">
+            <!-- Logo -->
+            <a href="/" class="flex items-center mr-10">
+              <div class="h-10 w-12 rounded-full bg-primary flex items-center justify-center">
+                <!-- <svg xmlns="" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg> -->
+                
+                <img src="./icon-512x512.png" alt="">
+              </div>
+              <span class="ml- text-2xl   font-bold text-gray"><span class="text-primary font-bold text-" >GENIE</span> 007</span>
+            </a>
+    
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-1">
+              <!-- Product Dropdown -->
+              <div class="relative" x-data="{ open: false }">
+                <button 
+                  class="flex items-center px-3 py-2 text-sm font-medium hover:text-primary"
+                  onclick="toggleDropdown('product')"
+                >
+                  Product
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 h-4 w-4 transition-transform dropdown-icon" data-dropdown="product">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden dropdown-menu" data-dropdown="product">
+                  <div class="p-4">
+                    <h3 class="text-sm font-medium mb-2">Learn</h3>
+                    <ul class="space-y-2">
+                      <li>
+                        <a href="/features" class="block text-sm hover:text-primary">
+                          Features
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/demo" class="block text-sm hover:text-primary">
+                          Product Demo
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/ai" class="block text-sm hover:text-primary">
+                          AI Technology
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/security" class="block text-sm hover:text-primary">
+                          Trust & Security
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="p-4 border-t border-gray-200">
+                    <h3 class="text-sm font-medium mb-2">Download</h3>
+                    <ul class="space-y-2">
+                      <li>
+                        <a href="/desktop" class="block text-sm hover:text-primary">
+                          Desktop
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/mobile" class="block text-sm hover:text-primary">
+                          Mobile
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/browser" class="block text-sm hover:text-primary">
+                          Browser
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    
+              <!-- Work Dropdown -->
+              <div class="relative">
+                <button 
+                  class="flex items-center px-3 py-2 text-sm font-medium hover:text-primary"
+                  onclick="toggleDropdown('work')"
+                >
+                  Work
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 h-4 w-4 transition-transform dropdown-icon" data-dropdown="work">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden dropdown-menu" data-dropdown="work">
+                  <div class="p-4">
+                    <h3 class="text-sm font-medium mb-2">By Team Size</h3>
+                    <ul class="space-y-2">
+                      <li>
+                        <a href="/enterprise" class="block text-sm hover:text-primary">
+                          Enterprise
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/teams" class="block text-sm hover:text-primary">
+                          Teams & Businesses
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/individuals" class="block text-sm hover:text-primary">
+                          Individuals
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    
+              <!-- Education Dropdown -->
+              <div class="relative">
+                <button 
+                  class="flex items-center px-3 py-2 text-sm font-medium hover:text-primary"
+                  onclick="toggleDropdown('education')"
+                >
+                  Education
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 h-4 w-4 transition-transform dropdown-icon" data-dropdown="education">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden dropdown-menu" data-dropdown="education">
+                  <div class="p-4">
+                    <ul class="space-y-2">
+                      <li>
+                        <a href="/students" class="block text-sm hover:text-primary">
+                          Students
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/institutions" class="block text-sm hover:text-primary">
+                          Institutions
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    
+              <!-- Pricing Link -->
+              <a href="/pricing" class="px-3 py-2 text-sm font-medium hover:text-primary">
+                Pricing
+              </a>
+    
+              <!-- Resources Dropdown -->
+              <div class="relative">
+                <button 
+                  class="flex items-center px-3 py-2 text-sm font-medium hover:text-primary"
+                  onclick="toggleDropdown('resources')"
+                >
+                  Resources
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 h-4 w-4 transition-transform dropdown-icon" data-dropdown="resources">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden dropdown-menu" data-dropdown="resources">
+                  <div class="p-4">
+                    <h3 class="text-sm font-medium mb-2">Learn</h3>
+                    <ul class="space-y-2">
+                      <li>
+                        <a href="/blog" class="block text-sm hover:text-primary">
+                          Blog
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/stories" class="block text-sm hover:text-primary">
+                          Customer Stories
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/help" class="block text-sm hover:text-primary">
+                          Help Center
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Desktop CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4 ml-auto ">
+              <a href="/contact" class="text-sm font-medium hover:text-primary">
+                Contact Sales
+              </a>
+              <a href="/login" class="text-sm font-medium hover:text-primary">
+                Log in
+              </a>
+              <a href="/signup" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md text-sm font-medium flex">
+                <span class="font-bold">Get Grammarly</span>
+                <span class="ml-1">It's free</span>
+                <span class="items-center flex pl-2"><svg width="11" height="10" viewBox="0 0 11 10" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-component-name="cta-arrow"><path d="M5.056 1.748L6.144 0.691999L10.304 4.836V4.948L6.144 9.108L5.056 8.036L7.44 5.652H0.304V4.132H7.424L5.056 1.748Z"></path></svg></span>
+              </a>
+            </div>
+    
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center">
+              <a href="/login" class="text-sm font-medium mr-4 hover:text-primary">
+                Log in
+              </a>
+              <button
+                onclick="toggleMobileMenu()"
+                class="p-2 rounded-md hover:bg-gray-100"
+                id="mobile-menu-button"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </nav>
+        </div>
+    
+        <!-- Mobile Menu -->
+        <div class="md:hidden bg-white border-t border-gray-200 hidden" id="mobile-menu">
+          <div class="px-4 pt-2 pb-4 space-y-1">
+            <!-- Mobile Product Dropdown -->
+            <div>
+              <button
+                onclick="toggleMobileDropdown('mobile-product')"
+                class="w-full flex items-center justify-between py-2 text-base font-medium"
+              >
+                Product
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform mobile-dropdown-icon" data-dropdown="mobile-product">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="pl-4 pb-2 hidden mobile-dropdown-menu" data-dropdown="mobile-product">
+                <h3 class="text-sm font-medium my-2">Learn</h3>
+                <ul class="space-y-2">
+                  <li>
+                    <a href="/features" class="block text-sm hover:text-primary">
+                      Features
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/demo" class="block text-sm hover:text-primary">
+                      Product Demo
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/ai" class="block text-sm hover:text-primary">
+                      AI Technology
+                    </a>
+                  </li>
+                </ul>
+                <h3 class="text-sm font-medium my-2 mt-4">Download</h3>
+                <ul class="space-y-2">
+                  <li>
+                    <a href="/desktop" class="block text-sm hover:text-primary">
+                      Desktop
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/mobile" class="block text-sm hover:text-primary">
+                      Mobile
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+    
+            <!-- Mobile Work Dropdown -->
+            <div>
+              <button
+                onclick="toggleMobileDropdown('mobile-work')"
+                class="w-full flex items-center justify-between py-2 text-base font-medium"
+              >
+                Work
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform mobile-dropdown-icon" data-dropdown="mobile-work">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="pl-4 pb-2 hidden mobile-dropdown-menu" data-dropdown="mobile-work">
+                <h3 class="text-sm font-medium my-2">By Team Size</h3>
+                <ul class="space-y-2">
+                  <li>
+                    <a href="/enterprise" class="block text-sm hover:text-primary">
+                      Enterprise
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/teams" class="block text-sm hover:text-primary">
+                      Teams & Businesses
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+    
+            <!-- Mobile Education Dropdown -->
+            <div>
+              <button
+                onclick="toggleMobileDropdown('mobile-education')"
+                class="w-full flex items-center justify-between py-2 text-base font-medium"
+              >
+                Education
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform mobile-dropdown-icon" data-dropdown="mobile-education">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="pl-4 pb-2 hidden mobile-dropdown-menu" data-dropdown="mobile-education">
+                <ul class="space-y-2">
+                  <li>
+                    <a href="/students" class="block text-sm hover:text-primary">
+                      Students
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/institutions" class="block text-sm hover:text-primary">
+                      Institutions
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+    
+            <!-- Mobile Pricing Link -->
+            <a href="/pricing" class="block py-2 text-base font-medium">
+              Pricing
+            </a>
+    
+            <!-- Mobile Resources Dropdown -->
+            <div>
+              <button
+                onclick="toggleMobileDropdown('mobile-resources')"
+                class="w-full flex items-center justify-between py-2 text-base font-medium"
+              >
+                Resources
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform mobile-dropdown-icon" data-dropdown="mobile-resources">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="pl-4 pb-2 hidden mobile-dropdown-menu" data-dropdown="mobile-resources">
+                <h3 class="text-sm font-medium my-2">Learn</h3>
+                <ul class="space-y-2">
+                  <li>
+                    <a href="/blog" class="block text-sm hover:text-primary">
+                      Blog
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/stories" class="block text-sm hover:text-primary">
+                      Customer Stories
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+    
+            <!-- Mobile CTA Buttons -->
+            <div class="pt-4 space-y-4">
+              <a href="/contact" class="block text-center py-2 text-primary border border-primary rounded-md">
+                Contact Sales
+              </a>
+              <a href="/signup" class="block text-center py-2 bg-primary hover:bg-primary-hover text-white rounded-md">
+                <span class="font-bold">Get Started</span>
+                <span class="ml-1">It's free</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+  <script>
+        // Track active dropdown
+        let activeDropdown = null;
+        
+        // Toggle desktop dropdown
+        function toggleDropdown(dropdown) {
+          const dropdownMenu = document.querySelector(`.dropdown-menu[data-dropdown="${dropdown}"]`);
+          const dropdownIcon = document.querySelector(`.dropdown-icon[data-dropdown="${dropdown}"]`);
+          
+          // Close any open dropdown
+          if (activeDropdown && activeDropdown !== dropdown) {
+            const activeMenu = document.querySelector(`.dropdown-menu[data-dropdown="${activeDropdown}"]`);
+            const activeIcon = document.querySelector(`.dropdown-icon[data-dropdown="${activeDropdown}"]`);
+            
+            if (activeMenu) activeMenu.classList.add('hidden');
+            if (activeIcon) activeIcon.classList.remove('rotate-180');
+          }
+          
+          // Toggle current dropdown
+          if (dropdownMenu) {
+            dropdownMenu.classList.toggle('hidden');
+            dropdownIcon.classList.toggle('rotate-180');
+            
+            // Update active dropdown
+            activeDropdown = dropdownMenu.classList.contains('hidden') ? null : dropdown;
+          }
+        }
+        
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+          const mobileMenu = document.getElementById('mobile-menu');
+          const menuButton = document.getElementById('mobile-menu-button');
+          
+          if (mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('hidden');
+            menuButton.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            `;
+          } else {
+            mobileMenu.classList.add('hidden');
+            menuButton.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            `;
+            
+            // Close all mobile dropdowns
+            const mobileDropdowns = document.querySelectorAll('.mobile-dropdown-menu');
+            const mobileIcons = document.querySelectorAll('.mobile-dropdown-icon');
+            
+            mobileDropdowns.forEach(dropdown => {
+              dropdown.classList.add('hidden');
+            });
+            
+            mobileIcons.forEach(icon => {
+              icon.classList.remove('rotate-180');
+            });
+          }
+        }
+        
+        // Toggle mobile dropdown
+        function toggleMobileDropdown(dropdown) {
+          const dropdownMenu = document.querySelector(`.mobile-dropdown-menu[data-dropdown="${dropdown}"]`);
+          const dropdownIcon = document.querySelector(`.mobile-dropdown-icon[data-dropdown="${dropdown}"]`);
+          
+          if (dropdownMenu) {
+            dropdownMenu.classList.toggle('hidden');
+            dropdownIcon.classList.toggle('rotate-180');
+          }
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+          if (!event.target.closest('button') && !event.target.closest('.dropdown-menu')) {
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            const icons = document.querySelectorAll('.dropdown-icon');
+            
+            dropdowns.forEach(dropdown => {
+              dropdown.classList.add('hidden');
+            });
+            
+            icons.forEach(icon => {
+              icon.classList.remove('rotate-180');
+            });
+            
+            activeDropdown = null;
+          }
+        });
+      </script>
+      
+    
+    <main>
+      <!-- bg-gradient-to-r from-primary-50 to-white -->
+      <!-- Hero Section -->
+      <section class="py-16 px-4 md:px-6 lg:px-8 bg-white text-gray-900 pt-20  ">
+        <div class="max-w-7xl mx-auto ">
+          <div class="flex flex-col md:flex-row gap-12 items-center mt-10">
+            <!-- Left Column: Content -->
+            <div class="w-full md:w-1/2 space-y-8">
+              <div>
+              
+                <h1 class="text-5xl md:text-4xl leading-tight font-bold text-gray-900  text-primary">
+                  
+                  ✨ Genie 007 
+                  
+                </h1>
+                
+               
+
+                <h2 class="text-6xl md:text-6xl font-bold leading-tight tracking-tight mt-4">
+                  <span class=" ">World's First $1 </span> 
+                  <span class="relative inline-block ">
+                    AI Voice Assistant
+                    
+                  </span>
+                </h2>
+    
+                <h1 class="text-primary text-3xl md:text-4xl leading-tight font-semibold text-gray-900 mt-4">
+                  Speak,and 
+                  <span class="relative inline-block text-dark ">
+                    It's Done
+                    <span class="absolute bottom-0 left-0 w-full h-1 bg-primary/20 rounded-full"></span>
+                  </span>
+                </h1>
+    
+                
+                <div class="h-6"></div>
+                
+                <p class="text-lg md:text-xl text-gray-700 mb-2">
+                  Just say what you need. Genie generates a perfect response in seconds—no grammar errors, no composition mistakes.
+                </p>
+                
+               
+    
+                <p class="mt-4 text-lg font-semibold text-gray-800">
+                  Join 1,000+ keyboard haters who send emails 50X faster.
+                </p>
+              </div>
+              
+              <!-- Email Signup -->
+              <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <div class="relative w-full md:w-auto group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary-light rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative">
+                      <input 
+                        type="email" 
+                        placeholder="Enter your email" 
+                        class="w-full md:w-80 px-6 py-4 text-black rounded-md focus:outline-none shadow-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all bg-white/90 backdrop-blur-sm"
+                      >
+                      <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary/60">
+                          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 text-white px-6 py-4 text-lg h-auto">
+                    <span class="font-bold text-sm">UNLOCK YOUR ACCESS</span>
+                    <span class="ml-2" aria-hidden="true">
+                      <svg width="11" height="10" viewBox="0 0 11 10" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.056 1.748L6.144 0.691999L10.304 4.836V4.948L6.144 9.108L5.056 8.036L7.44 5.652H0.304V4.132H7.424L5.056 1.748Z"></path>
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+    
+                <!-- Progress Bar -->
+                <div class="animate-fade-in">
+                  <div class="h-3 bg-gray-200 rounded-full w-full relative overflow-hidden shadow-inner">
+                    <div class="h-3 bg-gradient-to-r from-primary to-primary-light rounded-full animate-progress relative" style="width: 65%">
+                      <div class="absolute inset-0 bg-white/20 bg-[length:10px_10px] bg-[0%_0%] animate-[progress-shine_1s_ease_infinite]"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between mt-3">
+                    <p class="text-base md:text-lg text-gray-800 flex items-center">
+                      <span class="inline-block mr-2">🚀</span> 
+                      <span>500 spots left</span>
+                    </p>
+                    <p class="text-base md:text-lg text-gray-800">
+                      <strong class="text-primary font-bold">327</strong> already claimed
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Trust Badges -->
+                <!-- <div class="flex flex-wrap gap-3">
+                  <div class="flex items-center bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span class="text-sm font-medium">Secure Checkout</span>
+                  </div>
+                  <div class="flex items-center bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Privacy Protected</span>
+                  </div>
+                  <div class="flex items-center bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-2">
+                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                      <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Money-back Guarantee</span>
+                  </div>
+                </div> -->
+              </div>
+            </div>
+            
+            <!-- Right Column: Video -->
+            <div class="w-full md:w-1/2 relative">
+              <div class="relative rounded-xl overflow-hidden shadow-">
+                <!-- Replace with your actual video path -->
+                <video 
+                  id="hero-video" 
+                  class="w-full h-auto rounded-xl" 
+                  autoplay 
+                  loop 
+                  muted
+                  playsinline 
+                  poster="/placeholder.svg?height=600&width=800"
+                >
+                  <source src="./0320.mp4" type="video/mp4">
+                  Sorry, your browser doesn't support embedded videos
+                </video>
+                
+                <!-- Video Controls -->
+                <button 
+                  id="video-control"
+                  aria-label="Pause video" 
+                  class="absolute bottom-4 right-4 bg-white/10 hover:bg-gray/20 rounded-full p-2 transition-all backdrop-blur-sm"
+                >
+                  <div class="h-8 w-8 rounded-full border-2 border-black-800 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-dark">
+                      <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                      <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                    </svg>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <script>
+        // Video play/pause functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const video = document.getElementById('hero-video');
+          const videoControl = document.getElementById('video-control');
+          
+          if (video && videoControl) {
+            videoControl.addEventListener('click', function() {
+              if (video.paused) {
+                video.play();
+                videoControl.setAttribute('aria-label', 'Pause video');
+                videoControl.innerHTML = `
+                  <div class="h-8 w-8 rounded-full border-2 border-white flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-dark">
+                      <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                      <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                    </svg>
+                  </div>
+                `;
+              } else {
+                video.pause();
+                videoControl.setAttribute('aria-label', 'Play video');
+                videoControl.innerHTML = `
+                  <div class="h-8 w-8 rounded-full border-2 border-dark-800 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-dark">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </div>
+                `;
+              }
+            });
+          }
+        });
+      </script>
+
+<div class="w-full max-w-5xl mx-auto">
+  <div class="flex flex-col md:flex-row justify-center gap-6 md:gap-8">
+    <div class="flex items-start gap-2 text-left">
+      <span class="text-primary text-xl flex-shrink-0">⚡</span>
+      <span class="text-gray-700">Any language, no more typing, no more switching apps, or copying</span>
+    </div>
+    <div class="flex items-start gap-2 text-left">
+      <span class="text-primary text-xl flex-shrink-0">⚡</span>
+      <span class="text-gray-700">Works in all your apps</span>
+    </div>
+    <div class="flex items-start gap-2 text-left">
+      <span class="text-primary text-xl flex-shrink-0">⚡</span>
+      <span class="text-gray-700">Trained on 10M+ professional documents</span>
+    </div>
+    <div class="flex items-start gap-2 text-left">
+      <span class="text-primary text-xl flex-shrink-0">⚡</span>
+      <span class="text-gray-700">Learns your style—Improves every time you speak</span>
+    </div>
+  </div>
+</div>
+     
+
+
+    <section class="container mx-auto px-4 py-8"><div class="flex flex-wrap justify-center gap-8"><div class="flex items-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L6.5 11H17.5L12 2Z" fill="#6366F1"></path><path d="M17.5 22C20 22 22 20 22 17.5C22 15 20 13 17.5 13C15 13 13 15 13 17.5C13 20 15 22 17.5 22Z" fill="#6366F1"></path><path d="M3 13.5H11V21.5H3V13.5Z" fill="#6366F1"></path></svg><span class="ml-2 text-sm text-gray-600">Secure Checkout</span></div><div class="flex items-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 11.99H19C18.47 16.11 15.72 19.78 12 20.93V12H5V6.3L12 3.19V11.99Z" fill="#6366F1"></path></svg><span class="ml-2 text-sm text-gray-600">Privacy Protected</span></div><div class="flex items-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.41 11.58L12.41 2.58C12.05 2.22 11.55 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.55 2.22 12.05 2.59 12.42L11.59 21.42C11.95 21.78 12.45 22 13 22C13.55 22 14.05 21.78 14.41 21.41L21.41 14.41C21.78 14.05 22 13.55 22 13C22 12.45 21.77 11.94 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z" fill="#6366F1"></path></svg><span class="ml-2 text-sm text-gray-600">Money-back Guarantee</span></div></div></section>
+
+    
+   
+
+  <!-- How it work section >>>>>> -->
+
+  <section class="py-20 px-4 md:px-8 lg:px-16 overflow-hidden relative">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-primary opacity-5 rounded-full -mr-32 -mt-32"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent opacity-5 rounded-full -ml-32 -mb-32"></div>
+    
+    <div class="max-w-7xl mx-auto">
+      <!-- Section Header -->
+      <div class="text-center mb-16 relative z-10 opacity-0 animate-fadeInUp">
+        <!-- <div class="inline-flex items-center justify-center mb-4">
+          <span class="h-px w-8 bg-primary"></span>
+          <span class="mx-3 text-primary font-semibold tracking-wider text-sm uppercase">Simple Process</span>
+          <span class="h-px w-8 bg-primary"></span>
+        </div> -->
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">How Genie AI Works</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Transform your digital experience with just your voice. No more typing, no more switching apps.
+        </p>
+      </div>
+      
+      <!-- Process Steps -->
+      <div class="relative">
+        <!-- Steps Container -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative z-10">
+          
+          <!-- Step 1: Install -->
+          <div class="bg-white rounded-xl shadow-lg p-8 relative opacity-0 animate-fadeInUp animation-delay-100">
+            <div class="absolute -top-5 -left-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">1</div>
+            
+            <div class="mb-6 flex justify-center">
+              <div class="w-20 h-20 bg-primary-light rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Install Genie</h3>
+            <p class="text-gray-600 text-center">
+              Download our browser extension or desktop app with a single click. No complex setup required.
+            </p>
+          </div>
+          
+          <!-- Step 2: Speak -->
+          <div class="bg-white rounded-xl shadow-lg p-8 relative opacity-0 animate-fadeInUp animation-delay-200">
+            <div class="absolute -top-5 -left-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">2</div>
+            
+            <div class="mb-6 flex justify-center">
+              <div class="w-20 h-20 bg-primary-light rounded-full flex items-center justify-center relative">
+                <div class="absolute inset-0 rounded-full bg-primary opacity-20 pulse-ring"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Speak Naturally</h3>
+            <p class="text-gray-600 text-center">
+              Just say what you need in plain language. No special commands or keywords needed.
+            </p>
+          </div>
+          
+          <!-- Step 3: Process -->
+          <div class="bg-white rounded-xl shadow-lg p-8 relative opacity-0 animate-fadeInUp animation-delay-300">
+            <div class="absolute -top-5 -left-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">3</div>
+            
+            <div class="mb-6 flex justify-center">
+              <div class="w-20 h-20 bg-primary-light rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">AI Processing</h3>
+            <p class="text-gray-600 text-center">
+              Our advanced AI understands context, learns your style, and processes your request instantly.
+            </p>
+          </div>
+          
+          <!-- Step 4: Results -->
+          <div class="bg-white rounded-xl shadow-lg p-8 relative opacity-0 animate-fadeInUp animation-delay-400">
+            <div class="absolute -top-5 -left-5 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">4</div>
+            
+            <div class="mb-6 flex justify-center">
+              <div class="w-20 h-20 bg-primary-light rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Instant Results</h3>
+            <p class="text-gray-600 text-center">
+              Get perfect responses, completed tasks, and intelligent actions in seconds, not minutes.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Connectors (visible on desktop) -->
+        <div class="hidden md:block absolute top-1/2 left-0 right-0 transform -translate-y-1/2 z-0">
+          <div class="h-1 bg-gray-200 w-full"></div>
+        </div>
+        
+        <!-- Connectors (visible on mobile) -->
+        <div class="md:hidden absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2 z-0">
+          <div class="w-1 bg-gray-200 h-full"></div>
+        </div>
+      </div>
+      
+    
+    </div>
+  </section>
+
+  <script>
+    // Animation on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+      const animatedElements = document.querySelectorAll('.animate-fadeInUp');
+      
+      // Initial animation for elements in viewport
+      animateElementsInView();
+      
+      // Animation on scroll
+      window.addEventListener('scroll', animateElementsInView);
+      
+      function animateElementsInView() {
+        animatedElements.forEach(element => {
+          const elementTop = element.getBoundingClientRect().top;
+          const elementVisible = 150;
+          
+          if (elementTop < window.innerHeight - elementVisible) {
+            element.style.opacity = '1';
+          }
+        });
+      }
+    });
+  </script>
+
+    
+      
+
+      <!-- Features Section -->
+      <div class="w-full max-w-[1280px] mx-auto px-4 md:px-8">
+        <!-- Works Everywhere Section Container -->
+        <div class="py-12 md:py-16 flex flex-col-reverse md:flex-row">
+      
+          <!-- Left Column - Text Content -->
+          <div class="w-full md:w-1/2 pr-0 md:pr-8">
+            <!-- Feature 1: Gmail Transformation -->
+            <div id="feature-1" class="feature-section" data-video="video-1">
+              <h2 class="text-5xl md:text-5xl font-bold text-gray-800 leading-tight mb-10">
+                Gmail
+              </h2>
+              <p class="text-lg text-gray-600">
+                Voice Command: "Send email to John" – Gmail is transformed by Genie into a seamless experience.
+              </p>
+            </div>
+      
+            <!-- Feature 2: Slack Transformation -->
+            <div id="feature-2" class="feature-section" data-video="video-2">
+              <h2 class="text-5xl md:text-5xl font-semibold text-gray-800 leading-tight mb-10">
+                Slack
+              </h2>
+              <p class="text-lg text-gray-600">
+                Voice Command: "Send message to the team" – Slack transforms from typing into instant voice commands.
+              </p>
+            </div>
+      
+            <!-- Feature 3: LinkedIn Transformation -->
+            <div id="feature-3" class="feature-section" data-video="video-3">
+              <h2 class="text-5xl md:text-5xl font-semibold text-gray-800 leading-tight mb-10">
+                LinkedIn
+              </h2>
+              <p class="text-lg text-gray-600">
+                Voice Command: "Post an update about the meeting" – Post LinkedIn updates with your voice.
+              </p>
+            </div>
+      
+            <!-- Feature 4: Claude Transformation -->
+            <div id="feature-4" class="feature-section" data-video="video-4">
+              <h2 class="text-5xl md:text-5xl font-semibold text-gray-800 leading-tight mb-10">
+                Claude
+              </h2>
+              <p class="text-lg text-gray-600">
+                Voice Command: "Start a new task" – Claude's interface is transformed into a voice-driven assistant.
+              </p>
+            </div>
+      
+            <!-- Testimonial -->
+            <div id="feature-5" class="feature-section" data-video="video-5">
+              <h2 class="text-5xl md:text-5xl font-semibold text-gray-800 leading-tight mb-10">
+                Testimonial
+              </h2>
+              <p class="text-lg text-gray-600 mb-6">
+                "I haven't typed an email since getting Genie. My thumbs thank me." – Sarah, Marketing Director
+              </p>
+            </div>
+          </div>
+      
+          <!-- Right Column - Videos -->
+          <div class="w-full md:w-1/2 md:pl-8">
+            <div class="videos-column">
+              <div class="videos-wrapper">
+                <!-- Video 1 - Gmail -->
+                <div id="video-1" class="video-container active">
+                  <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://cdn.pixabay.com/photo/2021/06/21/19/44/mountain-6345664_960_720.jpg">
+                    <source src="https://cdn.pixabay.com/download/video/6345664.mp4?_=1" type="video/mp4">
+                    Sorry, your browser doesn't support embedded videos
+                  </video>
+                  <span class="sr-only">An animation showing a calm, clear mountain view.</span>
+                </div>
+      
+                <!-- Video 2 - Slack -->
+                <div id="video-2" class="video-container">
+                  <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://cdn.pixabay.com/photo/2022/05/10/08/16/waterfall-7189357_960_720.jpg">
+                    <source src="https://cdn.pixabay.com/download/video/7189357.mp4?_=2" type="video/mp4">
+                    Sorry, your browser doesn't support embedded videos
+                  </video>
+                  <span class="sr-only">A waterfall video showcasing nature's beauty.</span>
+                </div>
+      
+                <!-- Video 3 - LinkedIn -->
+                <div id="video-3" class="video-container">
+                  <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://cdn.pixabay.com/photo/2021/04/16/14/47/forest-8189319_960_720.jpg">
+                    <source src="https://cdn.pixabay.com/download/video/8189319.mp4?_=3" type="video/mp4">
+                    Sorry, your browser doesn't support embedded videos
+                  </video>
+                  <span class="sr-only">An animation showing a lush green forest scene.</span>
+                </div>
+      
+                <!-- Video 4 - Claude -->
+                <div id="video-4" class="video-container">
+                  <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://cdn.pixabay.com/photo/2021/08/30/04/57/mountains-6583682_960_720.jpg">
+                    <source src="https://cdn.pixabay.com/download/video/6583682.mp4?_=4" type="video/mp4">
+                    Sorry, your browser doesn't support embedded videos
+                  </video>
+                  <span class="sr-only">An animation showing a high-altitude mountain view.</span>
+                </div>
+      
+                <!-- Video 5 - Testimonial -->
+                <div id="video-5" class="video-container">
+                  <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://cdn.pixabay.com/photo/2020/03/30/14/59/sunset-4980326_960_720.jpg">
+                    <source src="https://cdn.pixabay.com/download/video/4980326.mp4?_=5" type="video/mp4">
+                    Sorry, your browser doesn't support embedded videos
+                  </video>
+                  <span class="sr-only">A beautiful sunset view from a beach.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Benefits Section -->
+      <section class="py-16 bg-indigo-50 px-6 md:px-12 lg:px-20 ">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">What Happens When You Stop Typing?</h2>
+    
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg p-6 shadow-md">
+                    <h3 class="text-2xl font-semibold text-primary mb-4">For You</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Faster communication</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Reduced typing fatigue</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Improved accessibility</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">More natural interaction</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-md">
+                    <h3 class="text-2xl font-semibold text-primary mb-4">For Your Apps</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Enhanced user experience</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Increased user engagement</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Seamless integration with voice</span></li>
+                        <li class="flex items-center"><span class="mr-2 text-green-500">✓</span><span class="text-gray-700">Innovative feature set</span></li>
+                    </ul>
+                </div>
+            </div>
+    
+            <div class="text-center mt-10">
+                <p class="text-gray-600 mb-4">Join 1,237 early genies → Get permanent 'I Was Voice-First' badge</p>
+                <button class="bg-primary text-white font-semibold py-3 px-8 rounded-full hover:bg-primary-hover transition-colors duration-300">JOIN THE VOICE REVOLUTION</button>
+            </div>
+        </div>
+      </section>
+
+      <!-- Steps Section -->
+      <section class="py-20 bg-light px-6 md:px-12 lg:px-20 ">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-12">3 Steps to Becoming a Voice Wizard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-primary p-4 rounded-t-lg"></div>
+                    <div class="p-8">
+                        <img src="chrome-extension.png" alt="Chrome Extension" class="mx-auto mb-4 w-12 h-12">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Install Extension</h3>
+                        <p class="text-gray-700">Add our Chrome extension and get started in seconds.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-primary p-4 rounded-t-lg"></div>
+                    <div class="p-8">
+                        <img src="microphone.png" alt="Microphone" class="mx-auto mb-4 w-12 h-12">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Speak Naturally</h3>
+                        <p class="text-gray-700">Use your voice to interact with any website.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-primary p-4 rounded-t-lg"></div>
+                    <div class="p-8">
+                        <img src="relaxed-person.png" alt="Relaxed Person" class="mx-auto mb-4 w-12 h-12">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Enjoy Effortlessly</h3>
+                        <p class="text-gray-700">Experience a new level of online freedom and ease.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Use Cases Section -->
+      <section class="bg-white py-16  px-6 md:px-12 lg:px-20 ">
+        <div class="container mx-auto px-4">
+            <!-- Section Header -->
+            <div class="mb-12 text-center">
+                <div class="relative mx-auto mb-6">
+                    <!-- Decorative SVG -->
+                    <svg class="mx-auto opacity-10" width="200" height="100" viewBox="0 0 1274 795" fill="none">
+                        <g filter="url(#filter0_f_106_2)">
+                            <path d="M637 395L400.575 -14.5L873.425 -14.4999L637 395Z" fill="currentColor" fill-opacity="0.55"></path>
+                        </g>
+                        <defs>
+                            <filter id="filter0_f_106_2" x="0.575043" y="-414.5" width="1272.85" height="1209.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
+                                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend>
+                                <feGaussianBlur stdDeviation="200" result="effect1_foregroundBlur_106_2"></feGaussianBlur>
+                            </filter>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="mb-2 inline-block text-sm font-medium uppercase tracking-wider text-primary"><span class="mr-2">+</span> USE CASES <span class="ml-2">+</span></span>
+                <h2 class="text-3xl font-bold leading-tight md:text-4xl">The Genie You've Always Wanted</h2>
+            </div>
+    
+            <!-- Use Case Cards Grid -->
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Use Case Item 1 -->
+                <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+                    <div class="absolute right-4 top-4 z-10 rounded-full bg-primary p-1 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </div>
+                    <div class="relative h-[200px] w-full overflow-hidden">
+                        <img alt="Meeting notes example" loading="lazy" decoding="async" class="object-cover transition-transform duration-300 group-hover:scale-105" src="https://th.bing.com/th/id/OIP.8pKblbwvYFAzD6Az3nWNuwAAAA?rs=1&pid=ImgDetMain&amp;width=300" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="mb-2 text-xl font-semibold">Meeting Notes</h3>
+                        <p class="mb-4 text-muted-foreground">Automatically transcribe and summarize your meetings, extracting key action items and decisions.</p>
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">GET YOUR GENIE →</a>
+                    </div>
+                </div>
+    
+                <!-- Use Case Item 2 -->
+                <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+                    <div class="absolute right-4 top-4 z-10 rounded-full bg-primary p-1 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </div>
+                    <div class="relative h-[200px] w-full overflow-hidden">
+                        <img alt="LinkedIn connection example" loading="lazy" decoding="async" class="object-cover transition-transform duration-300 group-hover:scale-105" src="https://th.bing.com/th/id/OIP.uYBuG-WPBjLRmXjqDM_GkwHaE8?w=768&h=512&rs=1&pid=ImgDetMain?height=200&amp;width=300" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="mb-2 text-xl font-semibold">LinkedIn Connection</h3>
+                        <p class="mb-4 text-muted-foreground">Generate personalized connection requests and follow-up messages based on profile information.</p>
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">GET YOUR GENIE →</a>
+                    </div>
+                </div>
+    
+                <!-- Use Case Item 3 -->
+                <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+                    <div class="absolute right-4 top-4 z-10 rounded-full bg-primary p-1 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </div>
+                    <div class="relative h-[200px] w-full overflow-hidden">
+                        <img alt="Social media post example" loading="lazy" decoding="async" class="object-cover transition-transform duration-300 group-hover:scale-105" src="https://images.yourstory.com/cs/1/175078f09bd211ec9bed114c16bb4a2d/socialmediamarketingstrategy-1650293336008.jpg?fm=png&auto=formatheight=200&amp;width=300" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="mb-2 text-xl font-semibold">Social Media Post</h3>
+                        <p class="mb-4 text-muted-foreground">Create engaging content for multiple platforms with appropriate hashtags and formatting.</p>
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">GET YOUR GENIE →</a>
+                    </div>
+                </div>
+    
+                <!-- Use Case Item 4 -->
+                <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+                    <div class="absolute right-4 top-4 z-10 rounded-full bg-primary p-1 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </div>
+                    <div class="relative h-[200px] w-full overflow-hidden">
+                        <img alt="Calendar event example" loading="lazy" decoding="async" class="object-cover transition-transform duration-300 group-hover:scale-105" src="https://jdmeier.com/wp-content/uploads/2023/11/Pains-Needs-Desired-Outcomes.jpg?height=200&amp;width=300" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="mb-2 text-xl font-semibold">Calendar Event</h3>
+                        <p class="mb-4 text-muted-foreground">Schedule and organize your meetings with smart suggestions for timing and participants.</p>
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">GET YOUR GENIE →</a>
+                    </div>
+                </div>
+    
+                <!-- Use Case Item 5 -->
+                <div class="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg">
+                    <div class="absolute right-4 top-4 z-10 rounded-full bg-primary p-1 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </div>
+                    <div class="relative h-[200px] w-full overflow-hidden">
+                        <img alt="Research summary example" loading="lazy" decoding="async" class="object-cover transition-transform duration-300 group-hover:scale-105" src="https://fiverr-res.cloudinary.com/videos/t_main1,q_auto,f_auto/p0snv5eeo7lhtqx7cv3k/do-authority-research-and-write-professional-summaries.png?height=200&amp;width=300" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="mb-2 text-xl font-semibold">Research Summary</h3>
+                        <p class="mb-4 text-muted-foreground">Compile and analyze information from multiple sources into comprehensive research reports.</p>
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">GET YOUR GENIE →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Technology Section -->
+      <section class="bg-dark py-16 text-white px-6 md:px-12 lg:px-20 ">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-4">Powered by Advanced AI Technology</h2>
+            <p class="text-lg text-gray-400 mb-12">The magic happens through cutting-edge technology (but you don't need to understand it to use it).</p>
+    
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <span class="px-6 py-3 rounded-lg border border-primary hover:shadow-[0px_0px_20px_#4F46E5] transition-all duration-300">Machine Learning</span>
+                <span class="px-6 py-3 rounded-lg border border-primary hover:shadow-[0px_0px_20px_#4F46E5] transition-all duration-300">Deep Learning</span>
+                <span class="px-6 py-3 rounded-lg border border-primary hover:shadow-[0px_0px_20px_#4F46E5] transition-all duration-300">Natural Language Processing</span>
+                <span class="px-6 py-3 rounded-lg border border-primary hover:shadow-[0px_0px_20px_#4F46E5] transition-all duration-300">Voice Recognition</span>
+            </div>
+        </div>
+      </section>
+
+      <!-- AI Dashboard Section -->
+      <section class="bg-white py-16 px-6 md:px-12 lg:px-20 ">
+        <div class="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Left: Image with AI Panel UI -->
+            <div class="p-8 bg-gray-100 rounded-xl shadow-lg">
+                <img src="./genie_icon.png" alt="AI Panel" class="w-full h-auto">
+            </div>
+    
+            <!-- Right: Content -->
+            <div class="px-6 lg:px-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Your Genie Gets Smarter Every Day</h2>
+                <p class="text-lg text-gray-600 mb-6">It's Your Personal AI That Learns Your Style</p>
+                <ul class="grid grid-cols-2 gap-4">
+                    <li class="bg-gray-200 p-4 rounded-lg">📌 Learns Your Preferences</li>
+                    <li class="bg-gray-200 p-4 rounded-lg">📌 Remembers Your Common Phrases</li>
+                    <li class="bg-gray-200 p-4 rounded-lg">📌 Predicts & Improves Suggestions</li>
+                    <li class="bg-gray-200 p-4 rounded-lg">📌 Adapts To Your Writing Speed</li>
+                </ul>
+            </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section class="relative py-16 bg-primary-light overflow-hidden px-6 md:px-12 lg:px-20 ">
+        <!-- Decorative Shapes -->
+        <!-- <div class="absolute top-0 left-0 w-32 h-32 opacity-20">
+          <img src="https://placehold.co/200x200/6366f1/FFFFFF?text=Shape" alt="" class="w-full h-full">
+        </div>
+        <div class="absolute top-20 right-20 w-24 h-24 opacity-10">
+          <img src="https://placehold.co/200x200/6366f1/FFFFFF?text=Shape" alt="" class="w-full h-full">
+        </div>
+        <div class="absolute bottom-0 left-1/4 w-40 h-40 opacity-15">
+          <img src="https://placehold.co/200x200/6366f1/FFFFFF?text=Shape" alt="" class="w-full h-full">
+        </div>
+        <div class="absolute bottom-10 right-10 w-32 h-32 opacity-20">
+          <img src="https://placehold.co/200x200/6366f1/FFFFFF?text=Shape" alt="" class="w-full h-full">
+        </div> -->
+        
+        <div class="container mx-auto px-4 relative z-10">
+          <!-- Section Title -->
+          <div class="flex justify-center mb-12">
+            <div class="relative max-w-lg text-center">
+              <h3 class="text-3xl md:text-4xl font-bold text-center relative inline-block">
+                <span class="absolute w-2 h-2 bg-primary rounded-full -left-4 top-0"></span>
+                <span class="absolute w-2 h-2 bg-primary rounded-full -left-4 bottom-0"></span>
+                Everyone's Talking Genie
+                <span class="absolute w-2 h-2 bg-primary rounded-full -right-4 top-0"></span>
+                <span class="absolute w-2 h-2 bg-primary rounded-full -right-4 bottom-0"></span>
+              </h3>
+              <p class="text-gray-600 mt-4">World wide 16,000+ happy customers</p>
+            </div>
+          </div>
+          
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Testimonial Slider - Left Side -->
+            <div class="lg:w-2/3">
+              <div class="relative bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div id="testimonial-content" class="relative">
+                  <!-- Quote Icon -->
+                  <img src="https://th.bing.com/th/id/OIP.8UmDIPsO5HnBLYa84rzIRgHaHa?rs=1&pid=ImgDetMain" alt="Quote" class="w-12 h-12 mb-6">
+                  
+                  <!-- Testimonial Text -->
+                  <div class="mb-6">
+                    <h3 class="text-xl text-gray-700 italic leading-relaxed">
+                      "I must explain to you how all this mistaken idea of denouncing
+                      pleasure and praising pain was born and I will give you a complete
+                      account of the system, and expound the actual this mistaken idea
+                      will give you a complete account."
+                    </h3>
+                  </div>
+                  
+                  <!-- Rating Stars -->
+                  <div class="flex items-center">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Testimonial Navigation Dots -->
+              <div class="flex justify-center space-x-2 mb-8">
+                <button class="w-3 h-3 rounded-full bg-primary" aria-label="Go to slide 1"></button>
+                <button class="w-3 h-3 rounded-full bg-gray-300" aria-label="Go to slide 2"></button>
+                <button class="w-3 h-3 rounded-full bg-gray-300" aria-label="Go to slide 3"></button>
+              </div>
+              
+              <!-- 3-Column Testimonial Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Testimonial Card 1 -->
+                <div class="bg-white rounded-lg shadow-md p-6 transition-transform hover:-translate-y-1 hover:shadow-lg">
+                  <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/60x60/6366f1/FFFFFF?text=User" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                      <h4 class="font-semibold">Herta Matos</h4>
+                      <p class="text-sm text-gray-600">Businessman</p>
+                    </div>
+                  </div>
+                  <p class="text-gray-700">"The Genie has completely transformed how I manage my daily tasks. It's like having a personal assistant!"</p>
+                  <div class="mt-4 flex">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                  </div>
+                </div>
+                
+                <!-- Testimonial Card 2 -->
+                <div class="bg-white rounded-lg shadow-md p-6 transition-transform hover:-translate-y-1 hover:shadow-lg">
+                  <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/60x60/6366f1/FFFFFF?text=User" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                      <h4 class="font-semibold">George Matos</h4>
+                      <p class="text-sm text-gray-600">Businessman</p>
+                    </div>
+                  </div>
+                  <p class="text-gray-700">"I've tried many productivity tools, but nothing compares to the efficiency and ease of use that Genie provides."</p>
+                  <div class="mt-4 flex">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                  </div>
+                </div>
+                
+                <!-- Testimonial Card 3 -->
+                <div class="bg-white rounded-lg shadow-md p-6 transition-transform hover:-translate-y-1 hover:shadow-lg">
+                  <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/60x60/6366f1/FFFFFF?text=User" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                      <h4 class="font-semibold">D. Ledford</h4>
+                      <p class="text-sm text-gray-600">Businessman</p>
+                    </div>
+                  </div>
+                  <p class="text-gray-700">"Since implementing Genie across our team, we've seen a 40% increase in productivity and communication."</p>
+                  <div class="mt-4 flex">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    <i class="fas fa-star text-yellow-400 ml-1"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Side - User Images and Activity Feed -->
+            <div class="lg:w-1/3">
+              <!-- User Images Grid -->
+              <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h4 class="font-semibold mb-4">Our Happy Customers</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="relative group cursor-pointer">
+                    <img src="https://th.bing.com/th/id/OIP.wiEV_UOG0jwFL6oMIVfq8QHaHa?rs=1&pid=ImgDetMain" alt="Herta Matos" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-primary bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 text-white rounded-b-lg">
+                      <h5 class="text-sm font-medium">Herta Matos</h5>
+                      <p class="text-xs">Businessman</p>
+                    </div>
+                  </div>
+                  <div class="relative group cursor-pointer">
+                    <img src="https://th.bing.com/th/id/OIP.eIRcM4ng9visEYANVa3-JQHaG-?w=545&h=513&rs=1&pid=ImgDetMain" alt="George Matos" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-primary bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 text-white rounded-b-lg">
+                      <h5 class="text-sm font-medium">George Matos</h5>
+                      <p class="text-xs">Businessman</p>
+                    </div>
+                  </div>
+                  <div class="relative group cursor-pointer">
+                    <img src="https://www.willpower.ca/wp-content/uploads/2023/01/SD_COMM_EnnsBaxter_Headshots_JordanArndt_20220107_0009_Crop1-scaled.jpg" alt="D. Ledford" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-primary bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 text-white rounded-b-lg">
+                      <h5 class="text-sm font-medium">D. Ledford</h5>
+                      <p class="text-xs">Businessman</p>
+                    </div>
+                  </div>
+                  <div class="relative group cursor-pointer">
+                    <img src="https://media.licdn.com/dms/image/D5603AQFrwDc15BmF6g/profile-displayphoto-shrink_800_800/0/1683310676065?e=2147483647&v=beta&t=X5APHZWzHhVVKe05M_njxgymGg0-tcyVW2SugK-L568" alt="Racheal" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-primary bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 text-white rounded-b-lg">
+                      <h5 class="text-sm font-medium">Racheal</h5>
+                      <p class="text-xs">Businessman</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Navigation Arrows -->
+                <div class="flex justify-between mt-4">
+                  <button id="prev-user" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                  </button>
+                  <button id="next-user" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Live Activity Feed -->
+              <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-primary text-white p-4">
+                  <h4 class="font-semibold flex items-center">
+                    <span class="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                    Live Activity
+                  </h4>
+                </div>
+                <div class="p-4 max-h-80 overflow-y-auto" id="activity-feed">
+                  <div class="border-b border-gray-100 pb-3 mb-3">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      <p class="text-sm">
+                        <span class="font-medium">John D.</span> from New York just signed up
+                        <span class="text-xs text-gray-500 ml-2">2 min ago</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-b border-gray-100 pb-3 mb-3">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      <p class="text-sm">
+                        <span class="font-medium">Sarah M.</span> from London just signed up
+                        <span class="text-xs text-gray-500 ml-2">5 min ago</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-b border-gray-100 pb-3 mb-3">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      <p class="text-sm">
+                        <span class="font-medium">Alex T.</span> from Toronto just signed up
+                        <span class="text-xs text-gray-500 ml-2">12 min ago</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-b border-gray-100 pb-3 mb-3">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      <p class="text-sm">
+                        <span class="font-medium">Maria G.</span> from Madrid just signed up
+                        <span class="text-xs text-gray-500 ml-2">18 min ago</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-b border-gray-100 pb-3 mb-3">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                      <p class="text-sm">
+                        <span class="font-medium">Raj P.</span> from Mumbai just signed up
+                        <span class="text-xs text-gray-500 ml-2">25 min ago</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Waitlist Section -->
+      <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+          <!-- Section Header -->
+          <div class="text-center mb-16">
+            <div class="inline-block mb-4">
+              <div class="h-1 w-12 bg-primary rounded-full mb-2 mx-auto"></div>
+              <span class="text-sm font-semibold uppercase tracking-wider text-primary">Join Our Waitlist</span>
+            </div>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+              Early Wishers Get <span class="gradient-text">Special Perks</span>
+            </h2>
+            <p class="max-w-2xl mx-auto text-gray-600 text-lg">
+              Join our waitlist today and unlock exclusive benefits that will enhance your experience when we launch.
+            </p>
+          </div>
+
+          <!-- Feature Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+            <!-- Card 1: Gift/Wish Bank -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover border border-gray-100 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-primary opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
+              
+              <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mb-6 group-hover:animate-float">
+                  <i class="fas fa-gift text-2xl text-primary"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-3 text-gray-900">Wish Bank Credits</h3>
+                <p class="text-gray-600 mb-4">
+                  Get 500 bonus credits in your wish bank when we launch. Use them to make your wishes come true faster.
+                </p>
+                
+                <div class="flex items-center text-primary font-medium">
+                  <span>Learn more</span>
+                  <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Meme/Fun -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover border border-gray-100 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-accent opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
+              
+              <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-accent bg-opacity-10 flex items-center justify-center mb-6 group-hover:animate-float">
+                  <i class="fas fa-laugh-beam text-2xl text-accent"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-3 text-gray-900">Exclusive Meme Pack</h3>
+                <p class="text-gray-600 mb-4">
+                  Unlock our premium collection of AI-generated memes and fun content that only early adopters will receive.
+                </p>
+                
+                <div class="flex items-center text-accent font-medium">
+                  <span>Learn more</span>
+                  <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Priority/Lightning -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover border border-gray-100 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500 opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
+              
+              <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-yellow-500 bg-opacity-10 flex items-center justify-center mb-6 group-hover:animate-float">
+                  <i class="fas fa-bolt text-2xl text-yellow-500"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-3 text-gray-900">Priority Access</h3>
+                <p class="text-gray-600 mb-4">
+                  Skip the line with VIP access to new features. Your wishes will be processed with lightning speed.
+                </p>
+                
+                <div class="flex items-center text-yellow-500 font-medium">
+                  <span>Learn more</span>
+                  <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: Crown/Status -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover border border-gray-100 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600 opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
+              
+              <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-purple-600 bg-opacity-10 flex items-center justify-center mb-6 group-hover:animate-float">
+                  <i class="fas fa-crown text-2xl text-purple-600"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-3 text-gray-900">Founder Status Badge</h3>
+                <p class="text-gray-600 mb-4">
+                  Receive a permanent Founder badge on your profile, showcasing your early support to other users.
+                </p>
+                
+                <div class="flex items-center text-purple-600 font-medium">
+                  <span>Learn more</span>
+                  <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Button -->
+          <div class="mt-16 text-center">
+            <a href="#" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white bg-primary hover:bg-primary-hover rounded-lg shadow-lg transition-colors duration-300 transform hover:scale-105">
+              Join the Waitlist
+              <svg class="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <p class="mt-4 text-sm text-gray-500">Already 2,500+ people on the waitlist</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA Section -->
+      <section class="bg-dark py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden px-6 md:px-12 lg:px-20 ">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div class="absolute top-10 left-10 w-64 h-64 bg-white opacity-5 rounded-full"></div>
+          <div class="absolute bottom-10 right-10 w-96 h-96 bg-white opacity-5 rounded-full"></div>
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-light opacity-10 rounded-full"></div>
+        </div>
+        
+        <div class="max-w-4xl mx-auto relative z-10">
+          <!-- Main Content -->
+          <div class="text-center">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+              Your Thumbs Deserve Retirement
+            </h2>
+            <p class="text-xl md:text-2xl text-white text-opacity-90 mb-8 max-w-2xl mx-auto">
+              Join the waitlist now or keep finger-pecking like it's 1999.
+            </p>
+            
+            <!-- FOMO Items -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+              <div class="bg-white bg-opacity-20 glass-effect rounded-lg px-6 py-3 text-white inline-flex items-center justify-center">
+                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse-slow mr-2"></div>
+                <span class="font-medium">327 spots claimed, only 173 remaining</span>
+              </div>
+              <div class="bg-white bg-opacity-20 glass-effect rounded-lg px-6 py-3 text-white inline-flex items-center justify-center">
+                <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse-slow mr-2"></div>
+                <span class="font-medium">Invites going out next week</span>
+              </div>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+              <!-- Primary Button -->
+              <button class="w-full sm:w-auto px-8 py-4 bg-white text-primary font-bold rounded-lg shadow-lg btn-hover-effect hover:shadow-glow text-lg">
+                YES, I WANT MAGICAL LAZINESS →
+              </button>
+              
+              <!-- Secondary Button -->
+              <button class="w-full sm:w-auto px-8 py-4 bg-transparent border border-white text-white font-medium rounded-lg btn-hover-effect hover:bg-white hover:bg-opacity-10 text-base">
+                No, I Love Carpal Tunnel
+              </button>
+            </div>
+            
+            <!-- Countdown Timer -->
+            <div class="mb-12">
+              <p class="text-white text-opacity-80 mb-3">Limited time offer expires in:</p>
+              <div class="flex justify-center gap-4">
+                <div class="bg-white bg-opacity-10 glass-effect rounded-lg px-4 py-2 min-w-[70px]">
+                  <div class="text-2xl font-bold text-white" id="days">2</div>
+                  <div class="text-xs text-white text-opacity-80">Days</div>
+                </div>
+                <div class="bg-white bg-opacity-10 glass-effect rounded-lg px-4 py-2 min-w-[70px]">
+                  <div class="text-2xl font-bold text-white" id="hours">11</div>
+                  <div class="text-xs text-white text-opacity-80">Hours</div>
+                </div>
+                <div class="bg-white bg-opacity-10 glass-effect rounded-lg px-4 py-2 min-w-[70px]">
+                  <div class="text-2xl font-bold text-white" id="minutes">37</div>
+                  <div class="text-xs text-white text-opacity-80">Minutes</div>
+                </div>
+                <div class="bg-white bg-opacity-10 glass-effect rounded-lg px-4 py-2 min-w-[70px]">
+                  <div class="text-2xl font-bold text-white" id="seconds">42</div>
+                  <div class="text-xs text-white text-opacity-80">Seconds</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Trust Signals -->
+            <div class="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-white text-opacity-90 text-left">No credit card required to join waitlist</span>
+              </div>
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-white text-opacity-90 text-left">Cancel anytime, no questions asked</span>
+              </div>
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-white text-opacity-90 text-left">Early access to exclusive features</span>
+              </div>
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-white text-opacity-90 text-left">Priority support from our team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-footer-dark text-footer-text py-12 px-4 sm:px-6 lg:px-8 animate-fade-in px-6 md:px-12 lg:px-20 ">
+      <div class="max-w-7xl mx-auto">
+        <!-- Main Footer Content -->
+        <div class="flex flex-col items-center">
+          <!-- Logo (Optional) -->
+          <div class="mb-8">
+            <div class="text-2xl font-bold text-white flex items-center">
+              <span class="mr-2">✨</span>
+              <span>Genie AI</span>
+            </div>
+          </div>
+          
+          <!-- Navigation Links -->
+          <nav class="mb-8">
+            <ul class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+              <li>
+                <a href="#" class="footer-link text-footer-link hover:text-footer-link-hover transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-footer-link hover:text-footer-link-hover transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-footer-link hover:text-footer-link-hover transition-colors">
+                  Contact
+                </a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-footer-link hover:text-footer-link-hover transition-colors">
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-footer-link hover:text-footer-link-hover transition-colors">
+                  Support
+                </a>
+              </li>
+            </ul>
+          </nav>
+          
+          <!-- Social Media Links -->
+          <div class="flex justify-center space-x-6 mb-8">
+            <a href="#" class="text-gray-400 hover:text-footer-link-hover transition-colors" aria-label="Twitter">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-footer-link-hover transition-colors" aria-label="LinkedIn">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-footer-link-hover transition-colors" aria-label="Instagram">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"></path>
+              </svg>
+            </a>
+          </div>
+          
+          <!-- Divider -->
+          <div class="w-full max-w-3xl h-px bg-gray-700 mb-8"></div>
+          
+          <!-- Copyright -->
+          <div class="text-center text-sm text-gray-400">
+            <p>© 2025 Genie AI. All rights reserved.</p>
+          </div>
+          
+          <!-- Additional Info (Optional) -->
+          <div class="mt-4 text-xs text-gray-500 text-center max-w-2xl">
+            <p>Genie AI uses advanced artificial intelligence to help you accomplish more with less effort. Our technology is designed to respect your privacy and security.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Back to Top Button -->
+      <div class="fixed bottom-8 right-8 z-50">
+        <button id="back-to-top" class="bg-primary text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" aria-label="Back to top">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+          </svg>
+        </button>
+      </div>
+    </footer>
+
+    <!-- JavaScript for dropdown functionality -->
+    <script>
+      // Track active dropdown
+      let activeDropdown = null;
+      
+      // Toggle desktop dropdown
+      function toggleDropdown(dropdown) {
+        const dropdownMenu = document.querySelector(`.dropdown-menu[data-dropdown="${dropdown}"]`);
+        const dropdownIcon = document.querySelector(`.dropdown-icon[data-dropdown="${dropdown}"]`);
+        
+        // Close any open dropdown
+        if (activeDropdown && activeDropdown !== dropdown) {
+          const activeMenu = document.querySelector(`.dropdown-menu[data-dropdown="${activeDropdown}"]`);
+          const activeIcon = document.querySelector(`.dropdown-icon[data-dropdown="${activeDropdown}"]`);
+          
+          if (activeMenu) activeMenu.classList.add('hidden');
+          if (activeIcon) activeIcon.classList.remove('rotate-180');
+        }
+        
+        // Toggle current dropdown
+        if (dropdownMenu) {
+          dropdownMenu.classList.toggle('hidden');
+          dropdownIcon.classList.toggle('rotate-180');
+          
+          // Update active dropdown
+          activeDropdown = dropdownMenu.classList.contains('hidden') ? null : dropdown;
+        }
+      }
+      
+      // Toggle mobile menu
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuButton = document.getElementById('mobile-menu-button');
+        
+        if (mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.remove('hidden');
+            {
+          mobileMenu.classList.remove('hidden');
+          menuButton.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            `;
+        } else {
+          mobileMenu.classList.add('hidden');
+          menuButton.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            `;
+          
+          // Close all mobile dropdowns
+          const mobileDropdowns = document.querySelectorAll('.mobile-dropdown-menu');
+          const mobileIcons = document.querySelectorAll('.mobile-dropdown-icon');
+          
+          mobileDropdowns.forEach(dropdown => {
+            dropdown.classList.add('hidden');
+          });
+          
+          mobileIcons.forEach(icon => {
+            icon.classList.remove('rotate-180');
+          });
+        }
+      }
+      
+      // Toggle mobile dropdown
+      function toggleMobileDropdown(dropdown) {
+        const dropdownMenu = document.querySelector(`.mobile-dropdown-menu[data-dropdown="${dropdown}"]`);
+        const dropdownIcon = document.querySelector(`.mobile-dropdown-icon[data-dropdown="${dropdown}"]`);
+        
+        if (dropdownMenu) {
+          dropdownMenu.classList.toggle('hidden');
+          dropdownIcon.classList.toggle('rotate-180');
+        }
+      }
+      
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('button') && !event.target.closest('.dropdown-menu')) {
+          const dropdowns = document.querySelectorAll('.dropdown-menu');
+          const icons = document.querySelectorAll('.dropdown-icon');
+          
+          dropdowns.forEach(dropdown => {
+            dropdown.classList.add('hidden');
+          });
+          
+          icons.forEach(icon => {
+            icon.classList.remove('rotate-180');
+          });
+          
+          activeDropdown = null;
+        }
+      });
+    </script>
+
+    <!-- JavaScript for logo marquee -->
+    <script>
+      // Get references to DOM elements
+      const firstRow = document.getElementById('firstRow');
+      const secondRow = document.getElementById('secondRow');
+      const toggleButton = document.getElementById('toggleButton');
+      const pauseIcon = document.getElementById('pauseIcon');
+      const playIcon = document.getElementById('playIcon');
+      
+      let isPaused = false;
+      
+      // Toggle pause/play function
+      function togglePause() {
+        isPaused = !isPaused;
+        
+        if (isPaused) {
+          // Add the paused class to stop the animation
+          firstRow.classList.add('paused');
+          secondRow.classList.add('paused');
+          pauseIcon.classList.add('hidden');
+          playIcon.classList.remove('hidden');
+          toggleButton.setAttribute('aria-label', 'Play');
+        } else {
+          // Remove the paused class to resume the animation
+          firstRow.classList.remove('paused');
+          secondRow.classList.remove('paused');
+          pauseIcon.classList.remove('hidden');
+          playIcon.classList.add('hidden');
+          toggleButton.setAttribute('aria-label', 'Pause');
+        }
+      }
+      
+      // Add click event listener to the button
+      toggleButton.addEventListener('click', togglePause);
+    </script>
+
+    <!-- JavaScript for video features -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const featureSections = document.querySelectorAll('.feature-section');
+        const videoContainers = document.querySelectorAll('.video-container');
+        const videos = document.querySelectorAll('video');
+      
+        // Play all videos on load
+        videos.forEach(video => {
+          video.play();
+        });
+      
+        // Function to check if an element is in viewport
+        function isInViewport(element) {
+          const rect = element.getBoundingClientRect();
+          const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      
+          // Consider an element in view when it's in the middle of the viewport
+          return (
+            rect.top <= windowHeight / 2 &&
+            rect.bottom >= windowHeight / 2
+          );
+        }
+      
+        // Function to update active video based on scroll position
+        function updateActiveVideo() {
+          let activeFeature = null;
+      
+          // Find which feature section is currently in view
+          featureSections.forEach(section => {
+            if (isInViewport(section)) {
+              activeFeature = section;
+            }
+          });
+      
+          // If a feature section is in view, update the active video
+          if (activeFeature) {
+            const videoId = activeFeature.getAttribute('data-video');
+      
+            // Hide all videos
+            videoContainers.forEach(container => {
+              container.classList.remove('active');
+            });
+      
+            // Show the active video
+            const activeVideo = document.getElementById(videoId);
+            if (activeVideo) {
+              activeVideo.classList.add('active');
+      
+              // Ensure the video is playing
+              const videoElement = activeVideo.querySelector('video');
+              if (videoElement && videoElement.paused) {
+                videoElement.play();
+              }
+            }
+          }
+        }
+      
+        // Update active video on scroll
+        window.addEventListener('scroll', updateActiveVideo);
+      
+        // Initial update
+        updateActiveVideo();
+      });
+    </script>
+
+    <!-- JavaScript for testimonials -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Testimonial Slider Functionality
+        const testimonials = [
+          {
+            text: "I must explain how this mistaken idea that AI complicates tasks is entirely false. TodayGen streamlines workflows, automates tasks, and enhances productivity. I will give you a complete account of how it transforms professional efficiency.",
+            rating: 5
+          },
+          {
+            text: "Many believe AI reduces personalization, but I must explain how this mistaken idea is misleading. TodayGen seamlessly handles emails, schedules, and tasks with precision. I will give you a complete account of its incredible efficiency.",
+            rating: 5
+          },
+          {
+            text: "The Genie platform has revolutionized our workflow. What used to take hours now takes minutes, and the quality of our output has improved dramatically. I can't imagine going back to our old way of working.",
+            rating: 5
+          }
+
+          
+        ];
+        
+        const testimonialContent = document.getElementById('testimonial-content');
+        const dots = document.querySelectorAll('[aria-label^="Go to slide"]');
+        let currentIndex = 0;
+        
+        // Set up dot click handlers
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            currentIndex = index;
+            updateTestimonial();
+            updateDots();
+          });
+        });
+        
+        function updateTestimonial() {
+          const testimonial = testimonials[currentIndex];
+          testimonialContent.innerHTML = `
+            <img src="https://placehold.co/60x60/6366f1/FFFFFF?text=Quote" alt="Quote" class="w-12 h-12 mb-6">
+            <div class="mb-6">
+              <h3 class="text-xl text-gray-700 italic leading-relaxed">"${testimonial.text}"</h3>
+            </div>
+            <div class="flex items-center">
+              ${Array(testimonial.rating).fill('<i class="fas fa-star text-yellow-400 ml-1"></i>').join('')}
+            </div>
+          `;
+        }
+        
+        function updateDots() {
+          dots.forEach((dot, index) => {
+            if (index === currentIndex) {
+              dot.classList.remove('bg-gray-300');
+              dot.classList.add('bg-primary');
+            } else {
+              dot.classList.remove('bg-primary');
+              dot.classList.add('bg-gray-300');
+            }
+          });
+        }
+        
+        // Auto-rotate testimonials
+        setInterval(() => {
+          currentIndex = (currentIndex + 1) % testimonials.length;
+          updateTestimonial();
+          updateDots();
+        }, 5000);
+        
+        // User navigation
+        const prevUserBtn = document.getElementById('prev-user');
+        const nextUserBtn = document.getElementById('next-user');
+        
+        prevUserBtn.addEventListener('click', function() {
+          // Implement user navigation logic here
+          console.log('Previous user clicked');
+        });
+        
+        nextUserBtn.addEventListener('click', function() {
+          // Implement user navigation logic here
+          console.log('Next user clicked');
+        });
+        
+        // Live activity feed simulation
+        const activityFeed = document.getElementById('activity-feed');
+        const cities = ['New York', 'London', 'Paris', 'Tokyo', 'Sydney', 'Berlin', 'Toronto', 'Mumbai', 'Dubai', 'São Paulo'];
+        const names = ['John', 'Sarah', 'Alex', 'Maria', 'Raj', 'Emma', 'Michael', 'Sophia', 'David', 'Olivia'];
+        
+        function addNewActivity() {
+          const name = names[Math.floor(Math.random() * names.length)];
+          const initial = name.charAt(0);
+          const city = cities[Math.floor(Math.random() * cities.length)];
+          const time = Math.floor(Math.random() * 30) + 1;
+          
+          const activityItem = document.createElement('div');
+          activityItem.className = 'border-b border-gray-100 pb-3 mb-3';
+          activityItem.innerHTML = `
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+              <p class="text-sm">
+                <span class="font-medium">${name} ${initial}.</span> from ${city} just signed up
+                <span class="text-xs text-gray-500 ml-2">${time} min ago</span>
+              </p>
+            </div>
+          `;
+          
+          activityFeed.prepend(activityItem);
+          
+          // Remove oldest item if there are more than 10
+          if (activityFeed.children.length > 10) {
+            activityFeed.removeChild(activityFeed.lastChild);
+          }
+        }
+        
+        // Add new activity every 8-15 seconds
+        setInterval(() => {
+          addNewActivity();
+        }, Math.random() * 7000 + 8000);
+      });
+    </script>
+
+    <!-- JavaScript for countdown timer -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Countdown Timer
+        function updateCountdown() {
+          const now = new Date();
+          const targetDate = new Date();
+          
+          // Set target date to 3 days from now
+          targetDate.setDate(now.getDate() + 3);
+          targetDate.setHours(23, 59, 59, 0);
+          
+          const difference = targetDate - now;
+          
+          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+          
+          document.getElementById('days').innerText = days;
+          document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
+          document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
+          document.getElementById('seconds').innerText = seconds.toString().padStart(2, '0');
+        }
+        
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        // FOMO counter animation
+        const spotsElement = document.querySelector('.bg-white.bg-opacity-20 span');
+        if (spotsElement) {
+          const spotsText = spotsElement.textContent;
+          const spotsMatch = spotsText.match(/(\d+) spots claimed, only (\d+) remaining/);
+          
+          if (spotsMatch) {
+            let claimed = parseInt(spotsMatch[1]);
+            let remaining = parseInt(spotsMatch[2]);
+            
+            setInterval(() => {
+              if (Math.random() > 0.7 && remaining > 1) {
+                claimed += 1;
+                remaining -= 1;
+                spotsElement.textContent = `${claimed} spots claimed, only ${remaining} remaining`;
+              }
+            }, 5000);
+          }
+        }
+        
+        // Button hover animation
+        const primaryButton = document.querySelector('.bg-white.text-primary');
+        if (primaryButton) {
+          primaryButton.addEventListener('mouseenter', function() {
+            this.classList.add('animate-bounce-slow');
+          });
+          primaryButton.addEventListener('mouseleave', function() {
+            this.classList.remove('animate-bounce-slow');
+          });
+        }
+      });
+    </script>
+
+    <!-- JavaScript for back to top button -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Back to Top Button
+        const backToTopButton = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', function() {
+          if (window.pageYOffset > 300) {
+            backToTopButton.classList.remove('opacity-0', 'invisible');
+            backToTopButton.classList.add('opacity-100', 'visible');
+          } else {
+            backToTopButton.classList.add('opacity-0', 'invisible');
+            backToTopButton.classList.remove('opacity-100', 'visible');
+          }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+        
+        // Fade in animation for footer elements
+        const footerElements = document.querySelectorAll('footer > div > div > *');
+        
+        const observerOptions = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+        
+        footerElements.forEach((element, index) => {
+          element.style.opacity = '0';
+          element.style.transform = 'translateY(10px)';
+          element.style.transition = `all 0.5s ease ${index * 0.1}s`;
+          observer.observe(element);
+        });
+      });
+    </script>
+</body>
+</html>
